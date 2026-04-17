@@ -17,48 +17,12 @@ TOP_SIZE = int(os.environ["TOP_SIZE"])
 class AggregationFilter:
 
     def __init__(self):
-        self.input_exchange = middleware.MessageMiddlewareExchangeRabbitMQ(
-            MOM_HOST, AGGREGATION_PREFIX, [f"{AGGREGATION_PREFIX}_{ID}"]
-        )
-        self.output_queue = middleware.MessageMiddlewareQueueRabbitMQ(
-            MOM_HOST, OUTPUT_QUEUE
-        )
-        self.fruit_top = []
-
-    def _process_data(self, fruit, amount):
-        logging.info("Processing data message")
-        for i in range(len(self.fruit_top)):
-            if self.fruit_top[i].fruit == fruit:
-                self.fruit_top[i] = self.fruit_top[i] + fruit_item.FruitItem(
-                    fruit, amount
-                )
-                return
-        bisect.insort(self.fruit_top, fruit_item.FruitItem(fruit, amount))
-
-    def _process_eof(self):
-        logging.info("Received EOF")
-        fruit_chunk = list(self.fruit_top[-TOP_SIZE:])
-        fruit_chunk.reverse()
-        fruit_top = list(
-            map(
-                lambda fruit_item: (fruit_item.fruit, fruit_item.amount),
-                fruit_chunk,
-            )
-        )
-        self.output_queue.send(message_protocol.internal.serialize(fruit_top))
-        del self.fruit_top
-
-    def process_messsage(self, message, ack, nack):
-        logging.info("Process message")
-        fields = message_protocol.internal.deserialize(message)
-        if len(fields) == 2:
-            self._process_data(*fields)
-        else:
-            self._process_eof()
-        ack()
+        self.top = FruitTop(TOP_SIZE)
+        self.producer = FruitProducer(MOM_HOST, OUTPUT_QUEUE, SUM_AMOUNT)
+        self.consumer = FruitConsumer(ID, MOM_HOST, AGGREGATION_PREFIX, self.top, self.producer)
 
     def start(self):
-        self.input_exchange.start_consuming(self.process_messsage)
+        self.consumer.run()
 
 
 def main():
