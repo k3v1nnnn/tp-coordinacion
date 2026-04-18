@@ -2,6 +2,8 @@ import os
 import logging
 
 from common import middleware, message_protocol, fruit_item
+from fruit_top import FruitTop
+from fruit_producer import FruitProducer
 
 MOM_HOST = os.environ["MOM_HOST"]
 INPUT_QUEUE = os.environ["INPUT_QUEUE"]

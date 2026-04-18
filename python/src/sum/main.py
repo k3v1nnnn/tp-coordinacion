@@ -3,6 +3,9 @@ import logging
 import threading
 
 from common import middleware, message_protocol, fruit_item
+from fruit_counter import FruitCounter
+from fruit_notifier import FruitNotifier
+from fruit_consumer import FruitConsumer
 
 ID = int(os.environ["ID"])
 MOM_HOST = os.environ["MOM_HOST"]

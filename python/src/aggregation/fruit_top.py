@@ -2,8 +2,7 @@ from common import fruit_item
 import bisect
 
 class FruitTop:
-    def __init__(self, top_size):
-        self.size = top_size
+    def __init__(self):
         self.top = {}
 
     
@@ -24,7 +23,7 @@ class FruitTop:
         top = self.top.pop(client_id, None)
         if top == None:
             return []
-        top = list(top[-self.size:])
+        top = list(top)
         top.reverse()
         return list(
             map(
