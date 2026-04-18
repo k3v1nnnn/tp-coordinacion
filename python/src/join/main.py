@@ -1,5 +1,6 @@
 import os
 import logging
+import signal
 
 from common import middleware, message_protocol, fruit_producer, fruit_top
 
@@ -31,8 +32,13 @@ class JoinFilter:
             self.producer.produce(client_id, fruits)
         ack()
 
+    def _stop(self, *_):
+        self.input_queue.stop_consuming()
+
     def start(self):
+        signal.signal(signal.SIGTERM, self._stop)
         self.input_queue.start_consuming(self.process_message)
+        self.input_queue.close()
 
 
 def main():

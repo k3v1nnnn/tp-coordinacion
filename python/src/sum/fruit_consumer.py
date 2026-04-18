@@ -1,6 +1,7 @@
 from common import middleware, message_protocol
 import logging
 import threading
+import signal
 
 class FruitConsumer:
     def __init__(self, consumer_id, host, name_queue, prefix, manager, notifier):
@@ -31,14 +32,21 @@ class FruitConsumer:
             return nack()
         ack()
 
+    def _stop(self, *_):
+        self.input.stop_consuming()
+        self.own_input.stop_consuming()
+
     def run(self):
+        signal.signal(signal.SIGTERM, self._stop)
         input_thread = threading.Thread(
-            target=self.input.start_consuming, 
+            target=self.input.start_consuming,
             args=(self.process_message,))
         own_input_thread = threading.Thread(
-            target=self.own_input.start_consuming, 
+            target=self.own_input.start_consuming,
             args=(self.process_message,))
         input_thread.start()
         own_input_thread.start()
         input_thread.join()
         own_input_thread.join()
+        self.input.close()
+        self.own_input.close()

@@ -1,4 +1,5 @@
 from common import middleware, message_protocol
+import signal
 
 class FruitConsumer:
     def __init__(self, consumer_id, host, prefix, manager, producer):
@@ -24,5 +25,10 @@ class FruitConsumer:
             return nack()
         ack()
 
+    def _stop(self, *_):
+        self.input.stop_consuming()
+
     def run(self):
+        signal.signal(signal.SIGTERM, self._stop)
         self.input.start_consuming(self.process_message)
+        self.input.close()
