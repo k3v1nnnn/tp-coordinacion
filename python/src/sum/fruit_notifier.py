@@ -13,7 +13,7 @@ class FruitNotifier:
                 self.own_outputs.append(middleware.MessageMiddlewareExchangeRabbitMQ(host, own_prefix, [f"{own_prefix}_{i}"]))
 
     def _assign_output(self, fruit):
-        return hash(fruit.lower()) % self.amount
+        return sum(ord(c) for c in fruit.lower()) % self.amount
 
     def notify(self, client_id, fruits, expand=True):
         for fruit in fruits:

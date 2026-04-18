@@ -1,8 +1,7 @@
 import os
 import logging
-import threading
 
-from common import middleware, message_protocol, fruit_item
+from common import middleware, message_protocol
 from fruit_counter import FruitCounter
 from fruit_notifier import FruitNotifier
 from fruit_consumer import FruitConsumer
@@ -12,7 +11,6 @@ MOM_HOST = os.environ["MOM_HOST"]
 INPUT_QUEUE = os.environ["INPUT_QUEUE"]
 SUM_AMOUNT = int(os.environ["SUM_AMOUNT"])
 SUM_PREFIX = os.environ["SUM_PREFIX"]
-SUM_CONTROL_EXCHANGE = "SUM_CONTROL_EXCHANGE"
 AGGREGATION_AMOUNT = int(os.environ["AGGREGATION_AMOUNT"])
 AGGREGATION_PREFIX = os.environ["AGGREGATION_PREFIX"]
 

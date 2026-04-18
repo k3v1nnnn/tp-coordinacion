@@ -1,23 +1,18 @@
 from common import middleware, message_protocol
-import logging
-import threading
 
 class FruitConsumer:
-    def __init__(self, id, host, prefix, manager, producer):
-        self.lock = threading.Lock()
+    def __init__(self, consumer_id, host, prefix, manager, producer):
         self.manager = manager
         self.producer = producer
-        self.input = middleware.MessageMiddlewareExchangeRabbitMQ(host, prefix, [f"{prefix}_{id}"])
+        self.input = middleware.MessageMiddlewareExchangeRabbitMQ(host, prefix, [f"{prefix}_{consumer_id}"])
 
     def _fruit_message(self, client_id, fruit, amount):
-        with self.lock:
-            self.manager.add(client_id, fruit, amount)
-    
+        self.manager.add(client_id, fruit, amount)
+
     def _end_message(self, client_id):
-        with self.lock:
-            if self.producer.can_produce(client_id):
-                fruits = self.manager.get(client_id)
-                self.producer.produce(client_id, fruits)
+        if self.producer.can_produce(client_id):
+            fruits = self.manager.get(client_id)
+            self.producer.produce(client_id, fruits)
 
     def process_message(self, message, ack, nack):
         fields = message_protocol.internal.deserialize(message)
@@ -30,8 +25,4 @@ class FruitConsumer:
         ack()
 
     def run(self):
-        input_thread = threading.Thread(
-            target=self.input.start_consuming, 
-            args=(self.process_message,))
-        input_thread.start()
-        input_thread.join()
+        self.input.start_consuming(self.process_message)

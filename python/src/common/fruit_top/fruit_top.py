@@ -2,10 +2,10 @@ from common import fruit_item
 import bisect
 
 class FruitTop:
-    def __init__(self):
+    def __init__(self, top_size=None):
+        self.size = top_size
         self.top = {}
 
-    
     def _add_sorted(self, client_id, fruit, amount):
         bisect.insort(self.top[client_id], fruit_item.FruitItem(fruit, amount))
 
@@ -18,16 +18,11 @@ class FruitTop:
                 self.top[client_id][i] = self.top[client_id][i] + fruit_item.FruitItem(fruit_name, amount)
                 return
         self._add_sorted(client_id, fruit_name, amount)
-    
+
     def get(self, client_id):
         top = self.top.pop(client_id, None)
         if top == None:
             return []
-        top = list(top)
+        top = list(top) if self.size is None else list(top[-self.size:])
         top.reverse()
-        return list(
-            map(
-                lambda _fruit_item: (_fruit_item.fruit, _fruit_item.amount),
-                top,
-            )
-        )
+        return list(map(lambda _fruit_item: (_fruit_item.fruit, _fruit_item.amount), top))

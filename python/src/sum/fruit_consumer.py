@@ -3,12 +3,12 @@ import logging
 import threading
 
 class FruitConsumer:
-    def __init__(self, id, host, name_queue, prefix, manager, notifier):
+    def __init__(self, consumer_id, host, name_queue, prefix, manager, notifier):
         self.lock = threading.Lock()
         self.manager = manager
         self.notifier = notifier
         self.input = middleware.MessageMiddlewareQueueRabbitMQ(host, name_queue)
-        self.own_input = middleware.MessageMiddlewareExchangeRabbitMQ(host, prefix, [f"{prefix}_{id}"])
+        self.own_input = middleware.MessageMiddlewareExchangeRabbitMQ(host, prefix, [f"{prefix}_{consumer_id}"])
 
     def _fruit_message(self, client_id, fruit, amount):
         with self.lock:

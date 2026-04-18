@@ -11,7 +11,5 @@ class FruitProducer:
         self.client_counter[client_id] = client_count = client_count + 1
         return client_count == self.amount
 
-
     def produce(self, client_id, fruits):
         self.output.send(message_protocol.internal.serialize([client_id, fruits]))
-
