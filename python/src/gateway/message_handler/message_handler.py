@@ -18,4 +18,4 @@ class MessageHandler:
         fields = message_protocol.internal.deserialize(message)
         if not fields or fields[0] != self.client_id:
             return []
-        return fields[1:]
+        return fields[1]
